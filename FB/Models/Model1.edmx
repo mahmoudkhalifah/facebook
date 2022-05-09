@@ -1,0 +1,602 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="facebook_dbModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="comments">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="commenter_id" Type="int" Nullable="false" />
+          <Property Name="post_id" Type="int" Nullable="false" />
+          <Property Name="time" Type="datetime" Nullable="false" />
+          <Property Name="comment_text" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+        </EntityType>
+        <EntityType Name="friend_requests">
+          <Key>
+            <PropertyRef Name="sender_id" />
+            <PropertyRef Name="reciver_id" />
+          </Key>
+          <Property Name="sender_id" Type="int" Nullable="false" />
+          <Property Name="reciver_id" Type="int" Nullable="false" />
+          <Property Name="date" Type="datetime" />
+        </EntityType>
+        <EntityType Name="Friends">
+          <Key>
+            <PropertyRef Name="user1_id" />
+            <PropertyRef Name="user2_id" />
+          </Key>
+          <Property Name="user1_id" Type="int" Nullable="false" />
+          <Property Name="user2_id" Type="int" Nullable="false" />
+          <Property Name="date" Type="datetime" />
+        </EntityType>
+        <EntityType Name="Post">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="poster_id" Type="int" Nullable="false" />
+          <Property Name="content" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="time" Type="datetime" Nullable="false" />
+          <Property Name="comments_count" Type="int" Nullable="false" />
+          <Property Name="likes_count" Type="int" Nullable="false" />
+          <Property Name="dislikes_count" Type="int" Nullable="false" />
+          <Property Name="is_private" Type="bit" />
+        </EntityType>
+        <EntityType Name="React">
+          <Key>
+            <PropertyRef Name="reacter_id" />
+            <PropertyRef Name="post_id" />
+          </Key>
+          <Property Name="reacter_id" Type="int" Nullable="false" />
+          <Property Name="post_id" Type="int" Nullable="false" />
+          <Property Name="is_like" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="sysdiagrams">
+          <Key>
+            <PropertyRef Name="diagram_id" />
+          </Key>
+          <Property Name="name" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="principal_id" Type="int" Nullable="false" />
+          <Property Name="diagram_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="version" Type="int" />
+          <Property Name="definition" Type="varbinary(max)" />
+        </EntityType>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="first_name" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="last_name" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="email" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="password" Type="nvarchar" MaxLength="150" Nullable="false" />
+          <Property Name="phone_number" Type="nvarchar" MaxLength="150" Nullable="false" />
+          <Property Name="profile_picture" Type="nvarchar" MaxLength="200" />
+        </EntityType>
+        <Association Name="FK_comments_Post_Id">
+          <End Role="Post" Type="Self.Post" Multiplicity="1" />
+          <End Role="comments" Type="Self.comments" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Post">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="comments">
+              <PropertyRef Name="post_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_comments_User_id">
+          <End Role="User" Type="Self.User" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="comments" Type="Self.comments" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="comments">
+              <PropertyRef Name="commenter_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_friend_requests_User_Reciver_Id">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="friend_requests" Type="Self.friend_requests" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="friend_requests">
+              <PropertyRef Name="reciver_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_friend_requests_User_sender_id">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="friend_requests" Type="Self.friend_requests" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="friend_requests">
+              <PropertyRef Name="sender_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Friends_User_User1_id">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="Friends" Type="Self.Friends" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="Friends">
+              <PropertyRef Name="user1_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Friends_User_user2_id">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="Friends" Type="Self.Friends" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="Friends">
+              <PropertyRef Name="user2_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Post_User_Id">
+          <End Role="User" Type="Self.User" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Post" Type="Self.Post" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="Post">
+              <PropertyRef Name="poster_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_React_Post_id">
+          <End Role="Post" Type="Self.Post" Multiplicity="1" />
+          <End Role="React" Type="Self.React" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Post">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="React">
+              <PropertyRef Name="post_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_React_User_Id">
+          <End Role="User" Type="Self.User" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="React" Type="Self.React" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="React">
+              <PropertyRef Name="reacter_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="facebook_dbModelStoreContainer">
+          <EntitySet Name="comments" EntityType="Self.comments" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="friend_requests" EntityType="Self.friend_requests" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Friends" EntityType="Self.Friends" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Post" EntityType="Self.Post" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="React" EntityType="Self.React" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="User" EntityType="Self.User" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_comments_Post_Id" Association="Self.FK_comments_Post_Id">
+            <End Role="Post" EntitySet="Post" />
+            <End Role="comments" EntitySet="comments" />
+          </AssociationSet>
+          <AssociationSet Name="FK_comments_User_id" Association="Self.FK_comments_User_id">
+            <End Role="User" EntitySet="User" />
+            <End Role="comments" EntitySet="comments" />
+          </AssociationSet>
+          <AssociationSet Name="FK_friend_requests_User_Reciver_Id" Association="Self.FK_friend_requests_User_Reciver_Id">
+            <End Role="User" EntitySet="User" />
+            <End Role="friend_requests" EntitySet="friend_requests" />
+          </AssociationSet>
+          <AssociationSet Name="FK_friend_requests_User_sender_id" Association="Self.FK_friend_requests_User_sender_id">
+            <End Role="User" EntitySet="User" />
+            <End Role="friend_requests" EntitySet="friend_requests" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Friends_User_User1_id" Association="Self.FK_Friends_User_User1_id">
+            <End Role="User" EntitySet="User" />
+            <End Role="Friends" EntitySet="Friends" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Friends_User_user2_id" Association="Self.FK_Friends_User_user2_id">
+            <End Role="User" EntitySet="User" />
+            <End Role="Friends" EntitySet="Friends" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Post_User_Id" Association="Self.FK_Post_User_Id">
+            <End Role="User" EntitySet="User" />
+            <End Role="Post" EntitySet="Post" />
+          </AssociationSet>
+          <AssociationSet Name="FK_React_Post_id" Association="Self.FK_React_Post_id">
+            <End Role="Post" EntitySet="Post" />
+            <End Role="React" EntitySet="React" />
+          </AssociationSet>
+          <AssociationSet Name="FK_React_User_Id" Association="Self.FK_React_User_Id">
+            <End Role="User" EntitySet="User" />
+            <End Role="React" EntitySet="React" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="facebook_dbModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="comment">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="commenter_id" Type="Int32" Nullable="false" />
+          <Property Name="post_id" Type="Int32" Nullable="false" />
+          <Property Name="time" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="comment_text" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <NavigationProperty Name="Post" Relationship="Self.FK_comments_Post_Id" FromRole="comments" ToRole="Post" />
+          <NavigationProperty Name="User" Relationship="Self.FK_comments_User_id" FromRole="comments" ToRole="User" />
+        </EntityType>
+        <EntityType Name="friend_requests">
+          <Key>
+            <PropertyRef Name="sender_id" />
+            <PropertyRef Name="reciver_id" />
+          </Key>
+          <Property Name="sender_id" Type="Int32" Nullable="false" />
+          <Property Name="reciver_id" Type="Int32" Nullable="false" />
+          <Property Name="date" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="User" Relationship="Self.FK_friend_requests_User_Reciver_Id" FromRole="friend_requests" ToRole="User" />
+          <NavigationProperty Name="User1" Relationship="Self.FK_friend_requests_User_sender_id" FromRole="friend_requests" ToRole="User" />
+        </EntityType>
+        <EntityType Name="Friend">
+          <Key>
+            <PropertyRef Name="user1_id" />
+            <PropertyRef Name="user2_id" />
+          </Key>
+          <Property Name="user1_id" Type="Int32" Nullable="false" />
+          <Property Name="user2_id" Type="Int32" Nullable="false" />
+          <Property Name="date" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="User" Relationship="Self.FK_Friends_User_User1_id" FromRole="Friends" ToRole="User" />
+          <NavigationProperty Name="User1" Relationship="Self.FK_Friends_User_user2_id" FromRole="Friends" ToRole="User" />
+        </EntityType>
+        <EntityType Name="Post">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="poster_id" Type="Int32" Nullable="false" />
+          <Property Name="content" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="time" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="comments_count" Type="Int32" Nullable="false" />
+          <Property Name="likes_count" Type="Int32" Nullable="false" />
+          <Property Name="dislikes_count" Type="Int32" Nullable="false" />
+          <Property Name="is_private" Type="Boolean" />
+          <NavigationProperty Name="comments" Relationship="Self.FK_comments_Post_Id" FromRole="Post" ToRole="comments" />
+          <NavigationProperty Name="User" Relationship="Self.FK_Post_User_Id" FromRole="Post" ToRole="User" />
+          <NavigationProperty Name="Reacts" Relationship="Self.FK_React_Post_id" FromRole="Post" ToRole="React" />
+        </EntityType>
+        <EntityType Name="React">
+          <Key>
+            <PropertyRef Name="reacter_id" />
+            <PropertyRef Name="post_id" />
+          </Key>
+          <Property Name="reacter_id" Type="Int32" Nullable="false" />
+          <Property Name="post_id" Type="Int32" Nullable="false" />
+          <Property Name="is_like" Type="facebook_dbModel.ReactType" Nullable="false" />
+          <NavigationProperty Name="Post" Relationship="Self.FK_React_Post_id" FromRole="React" ToRole="Post" />
+          <NavigationProperty Name="User" Relationship="Self.FK_React_User_Id" FromRole="React" ToRole="User" />
+        </EntityType>
+        <EntityType Name="sysdiagram">
+          <Key>
+            <PropertyRef Name="diagram_id" />
+          </Key>
+          <Property Name="name" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="principal_id" Type="Int32" Nullable="false" />
+          <Property Name="diagram_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="version" Type="Int32" />
+          <Property Name="definition" Type="Binary" MaxLength="Max" FixedLength="false" />
+        </EntityType>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="first_name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="last_name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="email" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="password" Type="String" MaxLength="150" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="phone_number" Type="String" MaxLength="150" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="profile_picture" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="comments" Relationship="Self.FK_comments_User_id" FromRole="User" ToRole="comments" />
+          <NavigationProperty Name="friend_requests" Relationship="Self.FK_friend_requests_User_Reciver_Id" FromRole="User" ToRole="friend_requests" />
+          <NavigationProperty Name="friend_requests1" Relationship="Self.FK_friend_requests_User_sender_id" FromRole="User" ToRole="friend_requests" />
+          <NavigationProperty Name="Friends" Relationship="Self.FK_Friends_User_User1_id" FromRole="User" ToRole="Friends" />
+          <NavigationProperty Name="Friends1" Relationship="Self.FK_Friends_User_user2_id" FromRole="User" ToRole="Friends" />
+          <NavigationProperty Name="Posts" Relationship="Self.FK_Post_User_Id" FromRole="User" ToRole="Post" />
+          <NavigationProperty Name="Reacts" Relationship="Self.FK_React_User_Id" FromRole="User" ToRole="React" />
+        </EntityType>
+        <Association Name="FK_comments_Post_Id">
+          <End Role="Post" Type="Self.Post" Multiplicity="1" />
+          <End Role="comments" Type="Self.comment" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Post">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="comments">
+              <PropertyRef Name="post_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_comments_User_id">
+          <End Role="User" Type="Self.User" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="comments" Type="Self.comment" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="comments">
+              <PropertyRef Name="commenter_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_friend_requests_User_Reciver_Id">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="friend_requests" Type="Self.friend_requests" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="friend_requests">
+              <PropertyRef Name="reciver_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_friend_requests_User_sender_id">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="friend_requests" Type="Self.friend_requests" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="friend_requests">
+              <PropertyRef Name="sender_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Friends_User_User1_id">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="Friends" Type="Self.Friend" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="Friends">
+              <PropertyRef Name="user1_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Friends_User_user2_id">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="Friends" Type="Self.Friend" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="Friends">
+              <PropertyRef Name="user2_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Post_User_Id">
+          <End Role="User" Type="Self.User" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Post" Type="Self.Post" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="Post">
+              <PropertyRef Name="poster_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_React_Post_id">
+          <End Role="Post" Type="Self.Post" Multiplicity="1" />
+          <End Role="React" Type="Self.React" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Post">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="React">
+              <PropertyRef Name="post_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_React_User_Id">
+          <End Role="User" Type="Self.User" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="React" Type="Self.React" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="React">
+              <PropertyRef Name="reacter_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="DataContext" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="comments" EntityType="Self.comment" />
+          <EntitySet Name="friend_requests" EntityType="Self.friend_requests" />
+          <EntitySet Name="Friends" EntityType="Self.Friend" />
+          <EntitySet Name="Posts" EntityType="Self.Post" />
+          <EntitySet Name="Reacts" EntityType="Self.React" />
+          <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagram" />
+          <EntitySet Name="Users" EntityType="Self.User" />
+          <AssociationSet Name="FK_comments_Post_Id" Association="Self.FK_comments_Post_Id">
+            <End Role="Post" EntitySet="Posts" />
+            <End Role="comments" EntitySet="comments" />
+          </AssociationSet>
+          <AssociationSet Name="FK_comments_User_id" Association="Self.FK_comments_User_id">
+            <End Role="User" EntitySet="Users" />
+            <End Role="comments" EntitySet="comments" />
+          </AssociationSet>
+          <AssociationSet Name="FK_friend_requests_User_Reciver_Id" Association="Self.FK_friend_requests_User_Reciver_Id">
+            <End Role="User" EntitySet="Users" />
+            <End Role="friend_requests" EntitySet="friend_requests" />
+          </AssociationSet>
+          <AssociationSet Name="FK_friend_requests_User_sender_id" Association="Self.FK_friend_requests_User_sender_id">
+            <End Role="User" EntitySet="Users" />
+            <End Role="friend_requests" EntitySet="friend_requests" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Friends_User_User1_id" Association="Self.FK_Friends_User_User1_id">
+            <End Role="User" EntitySet="Users" />
+            <End Role="Friends" EntitySet="Friends" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Friends_User_user2_id" Association="Self.FK_Friends_User_user2_id">
+            <End Role="User" EntitySet="Users" />
+            <End Role="Friends" EntitySet="Friends" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Post_User_Id" Association="Self.FK_Post_User_Id">
+            <End Role="User" EntitySet="Users" />
+            <End Role="Post" EntitySet="Posts" />
+          </AssociationSet>
+          <AssociationSet Name="FK_React_Post_id" Association="Self.FK_React_Post_id">
+            <End Role="Post" EntitySet="Posts" />
+            <End Role="React" EntitySet="Reacts" />
+          </AssociationSet>
+          <AssociationSet Name="FK_React_User_Id" Association="Self.FK_React_User_Id">
+            <End Role="User" EntitySet="Users" />
+            <End Role="React" EntitySet="Reacts" />
+          </AssociationSet>
+        </EntityContainer>
+        <EnumType Name="ReactType">
+          <Member Name="Like" />
+          <Member Name="Dislike" />
+        </EnumType>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="facebook_dbModelStoreContainer" CdmEntityContainer="DataContext">
+          <EntitySetMapping Name="comments">
+            <EntityTypeMapping TypeName="facebook_dbModel.comment">
+              <MappingFragment StoreEntitySet="comments">
+                <ScalarProperty Name="commenter_id" ColumnName="commenter_id" />
+                <ScalarProperty Name="post_id" ColumnName="post_id" />
+                <ScalarProperty Name="time" ColumnName="time" />
+                <ScalarProperty Name="comment_text" ColumnName="comment_text" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="friend_requests">
+            <EntityTypeMapping TypeName="facebook_dbModel.friend_requests">
+              <MappingFragment StoreEntitySet="friend_requests">
+                <ScalarProperty Name="sender_id" ColumnName="sender_id" />
+                <ScalarProperty Name="reciver_id" ColumnName="reciver_id" />
+                <ScalarProperty Name="date" ColumnName="date" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Friends">
+            <EntityTypeMapping TypeName="facebook_dbModel.Friend">
+              <MappingFragment StoreEntitySet="Friends">
+                <ScalarProperty Name="user1_id" ColumnName="user1_id" />
+                <ScalarProperty Name="user2_id" ColumnName="user2_id" />
+                <ScalarProperty Name="date" ColumnName="date" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Posts">
+            <EntityTypeMapping TypeName="facebook_dbModel.Post">
+              <MappingFragment StoreEntitySet="Post">
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="poster_id" ColumnName="poster_id" />
+                <ScalarProperty Name="content" ColumnName="content" />
+                <ScalarProperty Name="time" ColumnName="time" />
+                <ScalarProperty Name="comments_count" ColumnName="comments_count" />
+                <ScalarProperty Name="likes_count" ColumnName="likes_count" />
+                <ScalarProperty Name="dislikes_count" ColumnName="dislikes_count" />
+                <ScalarProperty Name="is_private" ColumnName="is_private" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Reacts">
+            <EntityTypeMapping TypeName="facebook_dbModel.React">
+              <MappingFragment StoreEntitySet="React">
+                <ScalarProperty Name="reacter_id" ColumnName="reacter_id" />
+                <ScalarProperty Name="post_id" ColumnName="post_id" />
+                <ScalarProperty Name="is_like" ColumnName="is_like" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="sysdiagrams">
+            <EntityTypeMapping TypeName="facebook_dbModel.sysdiagram">
+              <MappingFragment StoreEntitySet="sysdiagrams">
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="principal_id" ColumnName="principal_id" />
+                <ScalarProperty Name="diagram_id" ColumnName="diagram_id" />
+                <ScalarProperty Name="version" ColumnName="version" />
+                <ScalarProperty Name="definition" ColumnName="definition" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Users">
+            <EntityTypeMapping TypeName="facebook_dbModel.User">
+              <MappingFragment StoreEntitySet="User">
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="first_name" ColumnName="first_name" />
+                <ScalarProperty Name="last_name" ColumnName="last_name" />
+                <ScalarProperty Name="email" ColumnName="email" />
+                <ScalarProperty Name="password" ColumnName="password" />
+                <ScalarProperty Name="phone_number" ColumnName="phone_number" />
+                <ScalarProperty Name="profile_picture" ColumnName="profile_picture" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
