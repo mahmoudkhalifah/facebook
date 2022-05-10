@@ -50,7 +50,15 @@
             @Html.DisplayFor(modelItem => item.phone_number)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.profile_picture)
+            <!--@Html.DisplayFor(modelItem => item.profile_picture)-->
+            @if (item.profile_picture != null)
+            {
+                <img src="~/uploads/profile_pictures/@item.profile_picture" alt="error" width="50" height="50" />
+            }
+            else
+            {
+                <img src="~/uploads/profile_pictures/default.jpg" alt="error" width="50" height="50" />
+            }
         </td>
         <td>
             @Html.ActionLink("Edit", "Edit", new { id=item.id }) |

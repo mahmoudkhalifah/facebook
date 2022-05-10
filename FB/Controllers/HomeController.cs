@@ -1,6 +1,7 @@
 ﻿using FB.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -24,6 +25,12 @@ namespace FB.Controllers
             return db.Users.Where(u => u.email == email).ToList().Count() != 0;
         }
 
+        [NonAction]
+        public bool isPhoneNumberExist(string phoneNumber)
+        {
+            return db.Users.Where(u => u.phone_number == phoneNumber).ToList().Count() != 0;
+        }
+
         [HttpGet]
         public ActionResult Register()
         {
@@ -32,7 +39,7 @@ namespace FB.Controllers
         }
 
         [HttpPost]
-        public ActionResult Register(User user)
+        public ActionResult Register(User user,HttpPostedFileBase image)
         {
             bool Status = false;
             String Message = "";
@@ -45,6 +52,29 @@ namespace FB.Controllers
                 {
                     ModelState.AddModelError("EmailExist", "Email already taken!");
                     return View(user);
+                }
+                //if phone number already exists in our database
+                if (isPhoneNumberExist(user.phone_number))
+                {
+                    ModelState.AddModelError("PhoneNumberExist", "Phone number already taken!");
+                    return View(user);
+                }
+                if (image!= null && image.ContentLength != 0)
+                {
+                    string ext = Path.GetExtension(image.FileName);
+                    var exts = new[] { "jpg", "jpeg", "png" };
+                    if (exts.Contains(ext.Substring(1)))
+                    {
+                        string imageGuid = Guid.NewGuid().ToString();
+                        user.profile_picture = imageGuid + ext;
+                        image.SaveAs(Server.MapPath($"~/uploads/profile_pictures/{user.profile_picture}"));
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("NotValidImage", "File extention is not valid! try uplaod png,jpg or jpeg image");
+                        return View(user);
+                    }
+                    
                 }
                 //hash password
                 user.password = Crypt.Hash(user.password);
@@ -88,9 +118,11 @@ namespace FB.Controllers
                 login.password = Crypt.Hash(login.password);
                 if (db.Users.Where(u => u.email == login.email && u.password == login.password).ToList().Count()==1)
                 {
+                    //get id of the user to keep it in the cookie
+                    int id = db.Users.Where(user => user.email == login.email).Select(user => user.id).ToList()[0];
                     // if remeber me checked make the session last one year otherwise last only 2 hours
                     int timeoutMins = login.rememberMe ? 525600 : 120;
-                    var ticket = new FormsAuthenticationTicket(login.email,login.rememberMe,timeoutMins);
+                    var ticket = new FormsAuthenticationTicket(id.ToString(),login.rememberMe,timeoutMins);
                     string encrypted = FormsAuthentication.Encrypt(ticket);
                     var cookie = new HttpCookie(FormsAuthentication.FormsCookieName, encrypted);
                     cookie.Expires = DateTime.Now.AddMinutes(timeoutMins);

@@ -137,6 +137,7 @@
     <Compile Include="Models\comment.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\Extended\Post.cs" />
     <Compile Include="Models\Extended\User.cs" />
     <Compile Include="Models\Friend.cs">
       <DependentUpon>Model1.tt</DependentUpon>
@@ -231,9 +232,11 @@
     <Content Include="Views\Home\Register.cshtml" />
     <Content Include="Views\Home\Login.cshtml" />
     <Content Include="Views\User\Index.cshtml" />
+    <Content Include="Views\User\CreatePost.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="uploads\profile_pictures\" />
     <Folder Include="ViewModels\" />
   </ItemGroup>
   <ItemGroup>

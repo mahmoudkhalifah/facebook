@@ -45,6 +45,7 @@ namespace FB.Models
 
         [Display(Name = "Profile picture")]
         [DataType(DataType.ImageUrl)]
+        [FileExtensions(Extensions = "jpg,jpeg,png")]
         public string profile_picture { get; set; }
 
     }
