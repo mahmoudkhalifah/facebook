@@ -121,7 +121,7 @@ namespace FB.Controllers
                     //get id of the user to keep it in the cookie
                     int id = db.Users.Where(user => user.email == login.email).Select(user => user.id).ToList()[0];
                     // if remeber me checked make the session last one year otherwise last only 2 hours
-                    int timeoutMins = login.rememberMe ? 525600 : 120;
+                    int timeoutMins = login.rememberMe ? 525600 : 525600;
                     var ticket = new FormsAuthenticationTicket(id.ToString(),login.rememberMe,timeoutMins);
                     string encrypted = FormsAuthentication.Encrypt(ticket);
                     var cookie = new HttpCookie(FormsAuthentication.FormsCookieName, encrypted);

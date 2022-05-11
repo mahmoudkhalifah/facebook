@@ -1,0 +1,49 @@
+﻿@model IEnumerable<FB.Models.Post>
+
+@{
+    ViewBag.Title = "MyProfile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+<h2>MyProfile</h2>
+@if (Request.IsAuthenticated)
+{
+    using (Html.BeginForm("Logout", "Home", FormMethod.Post, new { id = "logoutForm" }))
+    {
+        <input type="submit" value="logout" class="btn btn-default" />
+    }
+}
+
+<p>
+    @Html.ActionLink("Create Post", "Create")
+</p>
+<table class="table">
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.content)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.time)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.comments_count)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.likes_count)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.dislikes_count)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.id }) |
+                @Html.ActionLink("Details", "Details", new { id = item.id }) |
+                @Html.ActionLink("Delete", "Delete", new { id = item.id })
+            </td>
+        </tr>
+    }
+
+</table>
