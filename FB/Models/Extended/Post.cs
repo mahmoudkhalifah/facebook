@@ -20,5 +20,17 @@ namespace FB.Models
 
         [Display(Name = "only me")]
         public Nullable<bool> is_private { get; set; }
+
+        [Display(Name = "Likes")]
+        public Nullable<bool> likes_count { get; set; }
+
+        [Display(Name = "DisLikes")]
+        public Nullable<bool> dislikes_count { get; set; }
+
+        [Display(Name = "Comments")]
+        public Nullable<bool> comments_count { get; set; }
+
+        [Display(Name = "Time")]
+        public Nullable<bool> time { get; set; }
     }
 }

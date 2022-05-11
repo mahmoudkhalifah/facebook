@@ -32,5 +32,7 @@ namespace FB.Models
         public virtual DbSet<React> Reacts { get; set; }
         public virtual DbSet<sysdiagram> sysdiagrams { get; set; }
         public virtual DbSet<User> Users { get; set; }
+
+       
     }
 }

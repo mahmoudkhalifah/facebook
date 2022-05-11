@@ -1,42 +1,58 @@
-﻿@model IEnumerable<FB.Models.Post>
+﻿@model FB.Models.User
 
 @{
-    ViewBag.Title = ViewBag.user.first_name;
+    ViewBag.Title = Model.first_name;
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>@ViewBag.user.first_name @ViewBag.user.last_name</h2> <br />
 
 
-<p>
-    @Html.ActionLink("Create New", "Create")
-</p>
+
+<h>@Model.first_name @Model.last_name</h>
+<br />
+@if (Model.profile_picture != null)
+{
+    <img src="~/uploads/profile_pictures/@Model.profile_picture" alt="error" width="50" height="50" />
+}
+else
+{
+    <img src="~/uploads/profile_pictures/default.jpg" alt="error" width="50" height="50" />
+}
+
 <table class="table">
-    @*<tr>
-        <td>
-            @Html.DisplayNameFor(model => model.content)
-        </td>
-        <td>
-            @Html.DisplayNameFor(model => model.time)
-        </td>
-        <td>
-            @Html.DisplayNameFor(model => model.comments_count)
-        </td>
-        <td>
-            @Html.DisplayNameFor(model => model.likes_count)
-        </td>
-        <td>
-            @Html.DisplayNameFor(model => model.dislikes_count)
-        </td>
-        <td>
-            @Html.DisplayNameFor(model => model.is_private)
-        </td>
-        <td>
-            @Html.DisplayNameFor(model => model.User.first_name)
-        </td>
-        <td></td>
-    </tr>*@
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Posts.First().content)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Posts.First().time)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Posts.First().likes_count)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Posts.First().dislikes_count)
+        </th>
+        <th>
+            @Html.DisplayName("Your React")
+        </th>
+        <th>
+            @Html.DisplayName("Comments Count")
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Posts.First().comments_count)
 
-@foreach (var item in Model) {
+        </th>
+        <th>
+            @Html.DisplayName("Write Comment")
+        </th>
+
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model.Posts.Where(s=> s.is_private==false|| s.is_private == null))
+    {
+        int i = 1;
     <tr>
         <td>
             @Html.DisplayFor(modelItem => item.content)
@@ -44,9 +60,7 @@
         <td>
             @Html.DisplayFor(modelItem => item.time)
         </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.comments_count)
-        </td>
+
         <td>
             @Html.DisplayFor(modelItem => item.likes_count)
         </td>
@@ -54,17 +68,82 @@
             @Html.DisplayFor(modelItem => item.dislikes_count)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.is_private)
+            @if (@item.Reacts.SingleOrDefault(r => r.reacter_id == int.Parse(User.Identity.Name)) == null)
+            {
+
+                using (Html.BeginForm("AddReact", "User", FormMethod.Post))
+                {
+                    <input type="hidden" name="id" value="@item.id" />
+                    <input type="hidden" name="react" value="true" />
+                    <input type="submit" value="Like" class="btn btn-default" />
+                }
+                using (Html.BeginForm("AddReact", "User", FormMethod.Post))
+                {
+                    <input type="hidden" name="id" value="@item.id" />
+                    <input type="hidden" name="react" value="false" />
+                    <input type="submit" value="DisLike" class="btn btn-default" />
+                }
+
+            }
+            else
+            {
+                if (@item.Reacts.SingleOrDefault(r => r.reacter_id == int.Parse(User.Identity.Name)).is_like == FB.Models.ReactType.Like)
+                {
+                    using (Html.BeginForm("AddReact", "User", FormMethod.Post))
+                    {
+                        <input type="hidden" name="id" value="@item.id" />
+                        <input type="hidden" name="react" value="true" />
+                        <input type="submit" value="Liked" class="btn btn-default" style="background-color:cadetblue" />
+                    }
+                    using (Html.BeginForm("AddReact", "User", FormMethod.Post))
+                    {
+                        <input type="hidden" name="id" value="@item.id" />
+                        <input type="hidden" name="react" value="false" />
+                        <input type="submit" value="DisLike" class="btn btn-default" />
+                    }
+                }
+                else
+                {
+                    using (Html.BeginForm("AddReact", "User", FormMethod.Post))
+                    {
+                        <input type="hidden" name="id" value="@item.id" />
+                        <input type="hidden" name="react" value="true" />
+                        <input type="submit" value="Like" class="btn btn-default"  />
+                    }
+                    using (Html.BeginForm("AddReact", "User", FormMethod.Post))
+                    {
+                        <input type="hidden" name="id" value="@item.id" />
+                        <input type="hidden" name="react" value="false" />
+                        <input type="submit" value="DisLiked" class="btn btn-default" style="background-color:cadetblue" />
+                    }
+                }
+
+            }
+
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.User.first_name)
+            @Html.DisplayFor(comment=> item.comments_count)
         </td>
         <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.id }) |
-            @Html.ActionLink("Details", "Details", new { id=item.id }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.id })
+           
+            @foreach (var comment in item.comments)
+            {
+
+                @i  @Html.DisplayName("  -  "); @Html.DisplayName(comment.comment_text);
+                i++;
+                <br />
+            }
+        </td>        
+        <td>
+            @using (Html.BeginForm("AddComment", "User", FormMethod.Post))
+            {
+                <input type="hidden" name="id" value="@item.id" />
+                <input type="text" id="commenttxt" name="text" value="" />
+                <input type="submit" value="Comment" class="btn btn-default" />
+
+            }
         </td>
     </tr>
-}
+    }
 
 </table>

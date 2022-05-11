@@ -19,18 +19,6 @@ namespace FB.Controllers
             return View(users);
         }
 
-        [NonAction]
-        public bool isEmailExist(string email)
-        {
-            return db.Users.Where(u => u.email == email).ToList().Count() != 0;
-        }
-
-        [NonAction]
-        public bool isPhoneNumberExist(string phoneNumber)
-        {
-            return db.Users.Where(u => u.phone_number == phoneNumber).ToList().Count() != 0;
-        }
-
         [HttpGet]
         public ActionResult Register()
         {
@@ -48,13 +36,13 @@ namespace FB.Controllers
             if(ModelState.IsValid)
             {
                 //if email already exists in our database
-                if(isEmailExist(user.email))
+                if(ExistingChecker.isEmailExist(user.email))
                 {
                     ModelState.AddModelError("EmailExist", "Email already taken!");
                     return View(user);
                 }
                 //if phone number already exists in our database
-                if (isPhoneNumberExist(user.phone_number))
+                if (ExistingChecker.isPhoneNumberExist(user.phone_number))
                 {
                     ModelState.AddModelError("PhoneNumberExist", "Phone number already taken!");
                     return View(user);

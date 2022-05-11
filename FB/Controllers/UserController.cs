@@ -1,6 +1,8 @@
 ﻿using FB.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -17,7 +19,10 @@ namespace FB.Controllers
         [Authorize]
         public ActionResult Index()
         {
-            return View();
+            int idcurr = int.Parse(System.Web.HttpContext.Current.User.Identity.Name);
+            List<Post> postlist = db.Posts.Where(p => p.poster_id == idcurr).ToList();
+            ViewBag.image = db.Users.SingleOrDefault(u => u.id == idcurr).first_name;
+            return View(postlist);
         }
 
         [Authorize]
@@ -40,6 +45,67 @@ namespace FB.Controllers
             }
             return View();
             
+        }  
+
+        [Authorize]
+        [HttpGet]
+        public ActionResult EditProfile()
+        {
+            int userId = int.Parse(User.Identity.Name);
+            User user = db.Users.Where(u => u.id == userId).ToList()[0];
+            user.confirmPassword = user.password;
+            return View(user);
+        }
+        
+        [HttpPost]
+        public ActionResult EditProfile(User user, HttpPostedFileBase image)
+        {
+            //if validation is ok
+            if (ModelState.IsValid)
+            {
+                //if email already exists in our database
+                if (ExistingChecker.isEmailExistEdit(user.email))
+                {
+                    ModelState.AddModelError("EmailExist", "Email already taken!");
+                    return View(user);
+                }
+                //if phone number already exists in our database
+                if (ExistingChecker.isPhoneNumberExistEdit(user.phone_number))
+                {
+                    ModelState.AddModelError("PhoneNumberExist", "Phone number already taken!");
+                    return View(user);
+                }
+                if (image != null && image.ContentLength != 0)
+                {
+                    string ext = Path.GetExtension(image.FileName);
+                    var exts = new[] { "jpg", "jpeg", "png" };
+                    if (exts.Contains(ext.Substring(1)))
+                    {
+                        string imageGuid = Guid.NewGuid().ToString();
+                        user.profile_picture = imageGuid + ext;
+                        image.SaveAs(Server.MapPath($"~/uploads/profile_pictures/{user.profile_picture}"));
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("NotValidImage", "File extention is not valid! try uplaod png,jpg or jpeg image");
+                        return View(user);
+                    }
+
+                }
+                /*u.id = user.id;
+                u.first_name = user.first_name;
+                u.last_name = user.last_name;
+                u.email = user.email;
+                u.phone_number = user.phone_number;
+                u.password = user.password;
+                u.confirmPassword = user.confirmPassword;*/
+
+                db.Entry(user).State = EntityState.Modified;
+                db.SaveChanges();
+                return RedirectToAction("Index");
+            }
+            return View(user);
+
         }
 
         [Authorize]
@@ -67,6 +133,7 @@ namespace FB.Controllers
         }
         [Authorize]
         [HttpGet]
+
         public ActionResult ShowFriend(int? id)
         {
             int idcurr = int.Parse(System.Web.HttpContext.Current.User.Identity.Name);
@@ -76,12 +143,102 @@ namespace FB.Controllers
                 if (friend == null)
                     return HttpNotFound();
                 List<Post> postlist = db.Posts.Where(p => p.poster_id == id).ToList();
-            
+                User user = db.Users.SingleOrDefault(u => u.id == id);
                 ViewBag.user = db.Users.Where(u => u.id == id).First();
-                return View(postlist);
+                return View(user);
             }
             else
                 return RedirectToAction("FriendesList");
+
+        }
+        [HttpPost]
+        public ActionResult AddReact(int id , bool react)
+        {
+           
+            int idcurr = int.Parse(System.Web.HttpContext.Current.User.Identity.Name);
+            Post post = db.Posts.Single(p => p.id == id);
+
+            React reactto = db.Reacts.SingleOrDefault(r => r.reacter_id == idcurr && r.post_id == id);
+            if (reactto == null)
+            {
+                React reactobj = new React { post_id = id, reacter_id = idcurr };
+                if (react)
+                {
+                    post.likes_count++;
+                    //db.Reacts.Select(r=> r.post_id == id).
+                    reactobj.is_like = ReactType.Like;
+                }
+                else
+                {
+                    post.dislikes_count++;
+                    reactobj.is_like = ReactType.Dislike;
+                }
+                db.Entry(post).State = EntityState.Modified;
+                db.Reacts.Add(reactobj);
+
+                db.SaveChanges();
+                return RedirectToAction("ShowFriend", new { id = post.poster_id });
+            }
+            else
+            {
+                db.Reacts.Remove(reactto);
+                React reactobj = new React { post_id = id, reacter_id = idcurr };
+                if (react)
+                {
+                    if (reactto.is_like == ReactType.Like)
+                    {
+                        //if (post.likes_count > 0)
+                            post.likes_count--;
+                    }
+                    else
+                    {
+                        reactobj.is_like = ReactType.Like;
+                        post.likes_count++;
+                    //if (post.dislikes_count > 0)
+                        post.dislikes_count--;
+                        db.Reacts.Add(reactobj);
+                    }
+
+                    //db.Reacts.Select(r=> r.post_id == id).
+                }
+                else
+                {
+                    if (reactto.is_like == ReactType.Dislike)
+                    {
+                        //if (post.dislikes_count > 0)
+                            post.dislikes_count--;
+                    }
+                    else
+                    {
+                        reactobj.is_like = ReactType.Dislike;
+                        //if (post.likes_count > 0)
+                        post.likes_count--;
+                        post.dislikes_count++;
+                        db.Reacts.Add(reactobj);
+                    }
+
+                    
+                }
+                //db.Entry(post).State = EntityState.Modified;
+
+                
+                db.SaveChanges();
+                return RedirectToAction("ShowFriend", new { id = post.poster_id });
+            }
+
+        
+        }
+        [HttpPost]
+        public ActionResult AddComment(int id , string text )
+        {
+            int idcurr = int.Parse(System.Web.HttpContext.Current.User.Identity.Name);
+            Post post = db.Posts.Single(p => p.id == id);
+            comment commentobj = new comment { commenter_id = idcurr, comment_text = text, post_id = id ,time= DateTime.Now };
+            post.comments_count++;
+            db.Entry(post).State = EntityState.Modified;
+            db.comments.Add(commentobj);
+            db.SaveChanges();
+            return RedirectToAction("ShowFriend", new { id = post.poster_id });
 
         }
     }
